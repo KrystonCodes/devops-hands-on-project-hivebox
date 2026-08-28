@@ -53,7 +53,25 @@ Here is a pre-start checklist:
 ## Implementation
 Project approach: HiveBox developed using Kanban. Work will be reflected as Github issues and tracked on the HiveBox Kanban board. 
 
-## Initial senseBox IDs: 
+### Initial senseBox IDs: 
 5eba5fbad46fb8001b799786
 5c21ff8f919bf8001adf2488
 5ade1acf223bd80019a1011c
+
+## Phase 2 - Application
+Initial HiveBox app version is: v0.0.1. It prints the current app version and then exits
+
+### Build Docker Image
+- docker build -t hiveboxv0.0.1
+
+### Run Container
+- docker run --rm hiveboxv0.0.1:latest 
+
+### Expected Output
+- v0.0.1
+
+### Check to Ensure the App Exited
+- echo $?
+
+### Expected Ouput from Echo
+- 0
