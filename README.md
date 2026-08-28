@@ -62,16 +62,16 @@ Project approach: HiveBox developed using Kanban. Work will be reflected as Gith
 Initial HiveBox app version is: v0.0.1. It prints the current app version and then exits
 
 #### Build Docker Image
-- docker build -t hiveboxv0.0.1
+```docker build -t hiveboxv0.0.1 .```
 
 #### Run Container
-- docker run --rm hiveboxv0.0.1:latest 
+```docker run --rm hiveboxv0.0.1:latest```
 
 #### Expected Output
-- v0.0.1
+```v0.0.1```
 
 #### Check to Ensure the App Exited
-- echo $?
+```echo $?```
 
 #### Expected Ouput from Echo
-- 0
+```0```
