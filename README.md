@@ -51,5 +51,9 @@ Here is a pre-start checklist:
 ---
 
 ## Implementation
+Project approach: HiveBox developed using Kanban. Work will be reflected as Github issues and tracked on the HiveBox Kanban board. 
 
-** ADD YOUR IMPLEMENTATION DOCUMENTATION HERE **
+## Initial senseBox IDs: 
+5eba5fbad46fb8001b799786
+5c21ff8f919bf8001adf2488
+5ade1acf223bd80019a1011c
