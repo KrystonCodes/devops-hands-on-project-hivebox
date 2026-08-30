@@ -85,3 +85,159 @@ echo $?
 ```text
 0
 ```
+
+## Phase 3 - CI Pipeline
+
+HiveBox is a FastAPI application that retrieves environmental sensor data from the openSenseMap API.
+
+#### API endpoints
+
+##### `GET /version`
+
+Returns the deployed application version.
+
+Example:
+
+```json
+{
+  "version": "v0.0.1"
+}
+```
+
+##### `GET /temperature`
+
+Returns the average of the configured senseBoxes' current Celsius temperature measurements.
+
+Only measurements from the previous hour are included.
+
+Example:
+
+```json
+{
+  "average": 21.4,
+  "unit": "°C",
+  "measurements": 3
+}
+```
+
+If no current measurements are available, the endpoint returns HTTP status `503`:
+
+```json
+{
+  "detail": "No temperature measurements from the last hour"
+}
+```
+
+#### Local setup
+
+Create a Python virtual environment:
+
+```bash
+python3 -m venv .venv
+```
+
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+Install the development dependencies:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+```
+
+#### Run the application
+
+Start the FastAPI application with Uvicorn:
+
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+Test the version endpoint:
+
+```bash
+curl -sS http://127.0.0.1:8000/version | jq
+```
+
+Test the temperature endpoint:
+
+```bash
+curl -sS http://127.0.0.1:8000/temperature | jq
+```
+
+The temperature request may take some time because it depends on the external openSenseMap API.
+
+FastAPI's interactive API documentation is available at:
+
+```texthttp://127.0.0.1:8000/docs
+```
+
+Stop the application by pressing `Ctrl+C`.
+
+#### Run the unit tests
+
+Run pytest from the repository root:
+
+```bash
+python3 -m pytest -v
+```
+
+The unit tests use controlled sample data instead of contacting the live openSenseMap API. This keeps the tests predictable and prevents them from failing when the external API is slow or unavailable.
+
+#### Run Pylint
+
+Check the Python code:
+
+```bash
+pylint app.py tests
+```
+
+#### Run Hadolint
+
+Check the Dockerfile:
+
+```bash
+docker run --rm -i hadolint/hadolint:v2.14.0 < Dockerfile
+```
+
+#### Build the Docker image
+
+```bash
+docker build -t hivebox:v0.0.1 .
+```
+
+#### Run the Docker container
+
+```bash
+docker run --rm --publish 8000:8000 hivebox:v0.0.1
+```
+
+The application is available at:
+
+```texthttp://127.0.0.1:8000
+```
+
+Open another terminal to test the running container:
+
+```bash
+curl -sS http://127.0.0.1:8000/version | jq
+```
+
+Stop the container by pressing `Ctrl+C` in the terminal where it is running.
+
+#### Continuous integration
+
+The GitHub Actions CI pipeline runs whenever a pull request targets the `main` branch.
+
+The pipeline:
+
+1. Installs Python and the project dependencies.
+2. Checks the Python code with Pylint.
+3. Runs the unit tests with pytest.
+4. Checks the Dockerfile with Hadolint.
+5. Builds the Docker image.
+6. Starts the container.
+7. Verifies that `/version` returns `v0.0.1`.
