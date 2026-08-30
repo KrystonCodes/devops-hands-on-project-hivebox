@@ -1,0 +1,31 @@
+name: OpenSSF Scorecard
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v7
+
+      - name: Run Scorecard
+        uses: ossf/scorecard-action@v2.4.4
+        with:
+          results_file: results.json
+          results_format: json
+          publish_results: true
+
+      - name: Display results
+        run: cat results.json
