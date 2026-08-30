@@ -1,31 +1,41 @@
 name: CI
+
 on: 
   pull_request:
     branches:
-      - main
+     - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout repo
-      uses: actions/checkout@7
-    - name: install python
+
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Install Python
       uses: actions/setup-python@v6
       with:
-        python-vesrion: '3.13'
-    - name: instal dependencies
+        python-version: "3.13"
+
+    - name: Install dependencies
       run: python -m pip install -r requirements-dev.txt
-    - name: lint python
+
+    - name: Lint Python
       run: pylint app.py tests
-    - name: run unit test
+
+    - name: Run unit tests
       run: python -m pytest -v
-    - name: lint dockerfile
+
+    - name: Lint Dockerfile
       run: |
         docker run --rm --interactive \
           hadolint/hadolint:v2.14.0 < Dockerfile
-    - name: build docker image
+
+    - name: Build Docker image
       run: docker build -t hivebox:test .
-    - name: test version endpoint
+
+    - name: Test version endpoint
       run: |
         docker run -d \
           --name hivebox \
@@ -38,3 +48,4 @@ jobs:
           curl --silent http://127.0.0.1:8000/version |
           jq --raw-output '.version'
         )" = "v0.0.1"
+
