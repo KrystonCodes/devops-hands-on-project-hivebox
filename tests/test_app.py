@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 
+import pytest
 from fastapi.testclient import TestClient
 
 import app as hivebox
@@ -29,7 +30,57 @@ def test_version_endpoint() -> None:
     response = client.get("/version")
 
     assert response.status_code == 200
-    assert response.json() == {"version": "v0.0.1"}
+    assert response.json() == {"version": "v0.1.0"}
+
+
+def test_default_sensebox_ids(
+    monkeypatch,
+) -> None:
+    """Default IDs are used when the environment is unset."""
+    monkeypatch.delenv(
+        hivebox.SENSEBOX_IDS_VARIABLE,
+        raising=False,
+    )
+
+    assert (
+        hivebox.get_sensebox_ids()
+        == hivebox.DEFAULT_SENSEBOX_IDS
+    )
+
+
+def test_configured_sensebox_ids(
+    monkeypatch,
+) -> None:
+    """IDs can be supplied as a comma-separated value."""
+    monkeypatch.setenv(
+        hivebox.SENSEBOX_IDS_VARIABLE,
+        "box-one, box-two,",
+    )
+
+    assert hivebox.get_sensebox_ids() == (
+        "box-one",
+        "box-two",
+    )
+
+
+@pytest.mark.parametrize(
+    ("temperature", "expected_status"),
+    [
+        (9.99, "Too Cold"),
+        (10.0, "Good"),
+        (37.0, "Good"),
+        (37.01, "Too Hot"),
+    ],
+)
+def test_temperature_status(
+    temperature: float,
+    expected_status: str,
+) -> None:
+    """Temperatures receive the expected status."""
+    assert (
+        hivebox.get_temperature_status(temperature)
+        == expected_status
+    )
 
 
 def test_temperature_endpoint_averages_fresh_data(
@@ -77,6 +128,7 @@ def test_temperature_endpoint_averages_fresh_data(
         "average": 22.0,
         "unit": "°C",
         "measurements": 2,
+        "status": "Good",
     }
 
 
@@ -131,3 +183,12 @@ def test_temperature_endpoint_handles_no_boxes(
     response = client.get("/temperature")
 
     assert response.status_code == 503
+
+
+def test_metrics_endpoint() -> None:
+    """Prometheus metrics are exposed by the application."""
+    client.get("/version")
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "http_requests_total" in response.text

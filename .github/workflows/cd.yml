@@ -1,0 +1,40 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Create image name
+        id: image
+        run: |
+          image_name="ghcr.io/${GITHUB_REPOSITORY,,}:${GITHUB_REF_NAME}"
+          echo "name=${image_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build release image
+        run: |
+          docker build --tag "${{ steps.image.outputs.name }}" .
+
+      - name: Push release image
+        run: |
+          docker push "${{ steps.image.outputs.name }}"
+          

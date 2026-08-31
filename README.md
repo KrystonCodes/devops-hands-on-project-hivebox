@@ -255,3 +255,48 @@ The pipeline:
 5. Builds the Docker image.
 6. Starts the container.
 7. Verifies that `/version` returns `v0.0.1`.
+
+### Phase 4 
+#### Adds temperature environment variables, status fields, prometheus, and kubernetes
+
+#### API endpoints
+
+##### `Updated GET /version`
+
+Returns the updated deployed application version.
+
+Example:
+
+```json
+{
+  "version": "v0.1.0"
+}
+```
+
+HiveBox reads a "status" field based on the temperature average value.
+
+    Less than 10: Too Cold
+    Between 11-36: Good
+    More than 37: Too Hot
+
+
+#### Prometheus
+`/metrics` returns prometheus metrics about the app
+
+
+#### Containers
+Created a KIND config to run with Ingress-Nginx
+- config file found under kind/kind-config.yaml
+
+
+Created and deployed HiveBox app using Kubernetes core manifests
+
+
+#### CI
+Ran SonarQube for code quality, security, and static analysis
+
+Ran Terrascan for Kubernetes manifest misconfigurations and vulnerabilities
+
+#### CD
+Created a GitHub Actions workflow for CD under: `.github/workflows/cd.yml`
+Added step to release by pushing a versioned Docker image to a container registry
