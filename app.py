@@ -170,4 +170,3 @@ async def get_temperature() -> dict[str, float | int | str]:
             average_temperature
         ),
     }
-    
